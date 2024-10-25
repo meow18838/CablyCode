@@ -47,6 +47,11 @@ function createWindow(filePath = null) {
             win.webContents.send('open-file', filePath);
         });
     }
+
+    // Handle window close
+    win.on('closed', () => {
+        app.quit(); // This will quit the entire application
+    });
 }
 
 // Add this event listener for new windows
@@ -70,7 +75,13 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    // Force quit on all platforms
+    app.quit();
+    process.exit(0); // This ensures all Node.js processes are terminated
+});
+
+// Add this to handle the quit event
+app.on('quit', () => {
+    console.log('App quit event received');
+    process.exit(0); // Force exit all processes
 });

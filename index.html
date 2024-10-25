@@ -1198,7 +1198,11 @@
                                 }
                             }
                             
-                            window.close();
+                            // Clean up and force quit
+                            if (folderWatcher) {
+                                clearInterval(folderWatcher);
+                            }
+                            remote.app.quit();
                             break;
                     }
                 });
@@ -1335,7 +1339,11 @@
                     }
                 }
                 
-                window.close();
+                // Clean up and force quit
+                if (folderWatcher) {
+                    clearInterval(folderWatcher);
+                }
+                remote.app.quit();
             });
 
             // Add this function after the editor creation and before other functions
