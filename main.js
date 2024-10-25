@@ -4,14 +4,6 @@ if (require('electron-squirrel-startup')) {
     return;
 }
 
-// Handle Squirrel events
-if (process.platform === 'win32') {
-    const setupEvents = require('./installers/setupEvents');
-    if (setupEvents.handleSquirrelEvent()) {
-        return;
-    }
-}
-
 const { app, BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const Store = require('electron-store');
@@ -36,7 +28,8 @@ function createWindow(filePath = null) {
             nodeIntegration: true,
             contextIsolation: false,
             webSecurity: false,
-            enableRemoteModule: true
+            enableRemoteModule: true,
+            devTools: false
         },
         icon: app.isPackaged 
             ? path.join(process.resourcesPath, 'image.png')
