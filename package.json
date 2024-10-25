@@ -1,0 +1,108 @@
+{
+  "name": "cablycode",
+  "version": "1.0.0",
+  "description": "CablyCode - A modern code editor",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "if not exist public\\vs mkdir public\\vs && xcopy /E /I /Y node_modules\\monaco-editor\\min\\vs public\\vs",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "prepare-icons": "node scripts/prepare-icons.js",
+    "dist": "electron-builder",
+    "publish": "electron-builder -p always"
+  },
+  "build": {
+    "appId": "com.cablycode.editor",
+    "productName": "CablyCode",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "node_modules/**/*",
+      "node_modules/electron-store/**/*",
+      "node_modules/conf/**/*",
+      "node_modules/dot-prop/**/*",
+      "node_modules/is-obj/**/*",
+      "node_modules/pkg-up/**/*",
+      "node_modules/winreg/**/*",
+      "public/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "public/vs",
+        "to": "public/vs"
+      },
+      {
+        "from": "image.png",
+        "to": "image.png"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "image.png",
+      "publisherName": "CablyCode"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CablyCode",
+      "uninstallDisplayName": "CablyCode",
+      "artifactName": "CablyCode Setup ${version}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "release"
+    },
+    "asar": true,
+    "compression": "maximum",
+    "removePackageScripts": true,
+    "removePackageKeywords": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cablycode.git"
+  },
+  "keywords": [
+    "editor",
+    "code",
+    "electron"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^11.5.0",
+    "electron-builder": "^24.6.4",
+    "electron-rebuild": "^3.2.9",
+    "electron-reloader": "^1.2.3",
+    "electron-updater": "^6.1.7",
+    "jimp": "^0.22.12",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.32.6",
+    "to-ico": "^1.1.5"
+  },
+  "dependencies": {
+    "conf": "^10.2.0",
+    "dot-prop": "^6.0.1",
+    "electron-debug": "^3.2.0",
+    "electron-log": "^5.0.1",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7",
+    "is-obj": "^2.0.0",
+    "pkg-up": "^3.1.0",
+    "monaco-editor": "^0.45.0",
+    "winreg": "^1.2.5"
+  }
+}
