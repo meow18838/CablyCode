@@ -43,36 +43,25 @@
       {
         "from": "image.png",
         "to": "image.png"
+      },
+      {
+        "from": "node_modules/ffmpeg-static/ffmpeg.exe",
+        "to": "ffmpeg.exe"
       }
     ],
     "win": {
       "target": [
         {
           "target": "portable",
-          "arch": ["x64"]
-        },
-        {
-          "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "image.png"
     },
     "portable": {
       "artifactName": "CablyCode-Portable-${version}.exe"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "CablyCode",
-      "uninstallDisplayName": "CablyCode",
-      "artifactName": "CablyCode-Setup-${version}.exe"
-    },
-    "publish": {
-      "provider": "github",
-      "releaseType": "release"
     },
     "asar": true,
     "compression": "maximum"
@@ -110,9 +99,10 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
+    "ffmpeg-static": "^5.2.0",
     "is-obj": "^2.0.0",
-    "pkg-up": "^3.1.0",
     "monaco-editor": "^0.45.0",
+    "pkg-up": "^3.1.0",
     "winreg": "^1.2.5"
   }
 }
