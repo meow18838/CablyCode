@@ -6,9 +6,7 @@
   "scripts": {
     "start": "electron .",
     "postinstall": "if not exist public\\vs mkdir public\\vs && xcopy /E /I /Y node_modules\\monaco-editor\\min\\vs public\\vs",
-    "build": "electron-builder --win portable",
-    "build-installer": "electron-builder --win nsis",
-    "build-all": "electron-builder -w",
+    "build": "electron-builder -w",
     "pack": "electron-builder --dir",
     "prepare-icons": "node scripts/prepare-icons.js",
     "dist": "electron-builder",
@@ -56,12 +54,27 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "image.png"
     },
     "portable": {
       "artifactName": "CablyCode-Portable-${version}.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CablyCode",
+      "uninstallDisplayName": "CablyCode",
+      "artifactName": "CablyCode-Setup-${version}.exe"
     },
     "asar": true,
     "compression": "maximum"
@@ -100,7 +113,9 @@
     "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
     "ffmpeg-static": "^5.2.0",
+    "highlight.js": "^11.8.0",
     "is-obj": "^2.0.0",
+    "marked": "^9.1.0",
     "monaco-editor": "^0.45.0",
     "pkg-up": "^3.1.0",
     "winreg": "^1.2.5"
