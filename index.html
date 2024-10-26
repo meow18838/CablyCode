@@ -854,11 +854,21 @@
             function loadDirectory(dirPath) {
                 showSpinner('Loading folder contents...');
                 
-                setTimeout(() => { // Use setTimeout to allow the spinner to show
+                setTimeout(() => {
                     try {
                         if (!fs.existsSync(dirPath)) {
                             hideSpinner();
                             showToast(`Directory "${dirPath}" does not exist`, 5000);
+                            
+                            // Show folder select dialog if directory doesn't exist
+                            remote.dialog.showOpenDialog({
+                                properties: ['openDirectory'],
+                                title: 'Select Folder'
+                            }).then(result => {
+                                if (!result.canceled && result.filePaths.length > 0) {
+                                    loadDirectory(result.filePaths[0]);
+                                }
+                            });
                             return;
                         }
 
@@ -944,15 +954,20 @@
                         hideSpinner();
                     } catch (error) {
                         console.error('Error loading directory:', error);
-                        const errorElement = document.createElement('div');
-                        errorElement.style.color = 'red';
-                        errorElement.style.padding = '10px';
-                        errorElement.textContent = `Error: ${error.message}`;
-                        fileExplorer.appendChild(errorElement);
-                        showToast(`Error loading directory: ${error.message}`, 5000);
                         hideSpinner();
+                        showToast(`Error loading directory: ${error.message}`, 5000);
+                        
+                        // Show folder select dialog on error
+                        remote.dialog.showOpenDialog({
+                            properties: ['openDirectory'],
+                            title: 'Select Folder'
+                        }).then(result => {
+                            if (!result.canceled && result.filePaths.length > 0) {
+                                loadDirectory(result.filePaths[0]);
+                            }
+                        });
                     }
-                }, 100); // Small delay to ensure spinner shows
+                }, 100);
 
                 // After successfully loading the directory, update the watcher
                 if (folderWatcher) {
@@ -1367,13 +1382,30 @@
                     if (savedState) {
                         const state = JSON.parse(savedState);
                         
+                        // Keep track of loaded paths to prevent duplicates
+                        const loadedPaths = new Set();
+                        
                         // Restore tabs
                         state.tabs.forEach(tabState => {
+                            // Skip if this path is already loaded
+                            if (loadedPaths.has(tabState.path)) {
+                                return;
+                            }
+                            
+                            // Skip if path is invalid (except for untitled files)
+                            if (tabState.path !== 'untitled' && !fs.existsSync(tabState.path)) {
+                                console.log(`Skipping non-existent file: ${tabState.path}`);
+                                return;
+                            }
+                            
                             createTab(tabState.path, tabState.content, tabState.language);
                             if (tabs.length > 0) {
                                 const lastTab = tabs[tabs.length - 1];
                                 lastTab.saved = tabState.saved;
                             }
+                            
+                            // Add path to loaded set
+                            loadedPaths.add(tabState.path);
                         });
                         
                         // Restore active tab
@@ -1476,14 +1508,46 @@
             loadState();
             try {
                 const lastDirectory = localStorage.getItem('lastDirectory') || 'C:/';
+                
+                // Check if the last directory exists
                 if (fs.existsSync(lastDirectory)) {
                     loadDirectory(lastDirectory);
                 } else {
-                    loadDirectory('C:/');
+                    // If last directory doesn't exist, show folder select dialog
+                    remote.dialog.showOpenDialog({
+                        properties: ['openDirectory'],
+                        title: 'Select Folder'
+                    }).then(result => {
+                        if (!result.canceled && result.filePaths.length > 0) {
+                            loadDirectory(result.filePaths[0]);
+                        } else {
+                            // If user cancels, load C:/ if it exists, otherwise show error
+                            if (fs.existsSync('C:/')) {
+                                loadDirectory('C:/');
+                            } else {
+                                showToast('Please select a valid folder to continue', 5000);
+                            }
+                        }
+                    });
                 }
             } catch (error) {
                 console.error('Error loading last directory:', error);
-                loadDirectory('C:/');
+                // Show folder select dialog on error
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory'],
+                    title: 'Select Folder'
+                }).then(result => {
+                    if (!result.canceled && result.filePaths.length > 0) {
+                        loadDirectory(result.filePaths[0]);
+                    } else {
+                        // If user cancels, load C:/ if it exists
+                        if (fs.existsSync('C:/')) {
+                            loadDirectory('C:/');
+                        } else {
+                            showToast('Please select a valid folder to continue', 5000);
+                        }
+                    }
+                });
             }
         });
     </script>
