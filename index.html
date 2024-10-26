@@ -425,6 +425,12 @@
     </style>
 </head>
 <body>
+    <!-- Add this right after the <body> tag, before any other content -->
+    <div class="spinner-overlay" style="display: flex;">
+        <div class="spinner"></div>
+        <div class="spinner-message">Loading editor...</div>
+    </div>
+
     <div id="container">
         <div id="titlebar">
             <span>CablyCode</span>
@@ -504,6 +510,9 @@
         });
 
         require(['vs/editor/editor.main'], function() {
+            // Show spinner during initialization
+            showSpinner('Initializing editor...');
+
             let currentPath = process.cwd();
             let tabs = [];
             let activeTab = null;
@@ -851,19 +860,31 @@
                 localStorage.setItem('lastDirectory', dirPath);
             }
 
+            // Update loadDirectory function to ensure we save the directory
             function loadDirectory(dirPath) {
                 showSpinner('Loading folder contents...');
                 
-                setTimeout(() => { // Use setTimeout to allow the spinner to show
+                setTimeout(() => {
                     try {
                         if (!fs.existsSync(dirPath)) {
                             hideSpinner();
                             showToast(`Directory "${dirPath}" does not exist`, 5000);
+                            
+                            // Show folder select dialog if directory doesn't exist
+                            remote.dialog.showOpenDialog({
+                                properties: ['openDirectory'],
+                                title: 'Select Folder'
+                            }).then(result => {
+                                if (!result.canceled && result.filePaths.length > 0) {
+                                    loadDirectory(result.filePaths[0]);
+                                }
+                            });
                             return;
                         }
 
+                        // Save the directory AFTER confirming it exists
                         currentPath = dirPath;
-                        saveCurrentDirectory(dirPath);
+                        saveCurrentDirectory(dirPath);  // This saves to localStorage
                         
                         const fileExplorer = document.getElementById('file-explorer');
                         fileExplorer.innerHTML = '';
@@ -944,15 +965,20 @@
                         hideSpinner();
                     } catch (error) {
                         console.error('Error loading directory:', error);
-                        const errorElement = document.createElement('div');
-                        errorElement.style.color = 'red';
-                        errorElement.style.padding = '10px';
-                        errorElement.textContent = `Error: ${error.message}`;
-                        fileExplorer.appendChild(errorElement);
-                        showToast(`Error loading directory: ${error.message}`, 5000);
                         hideSpinner();
+                        showToast(`Error loading directory: ${error.message}`, 5000);
+                        
+                        // Show folder select dialog on error
+                        remote.dialog.showOpenDialog({
+                            properties: ['openDirectory'],
+                            title: 'Select Folder'
+                        }).then(result => {
+                            if (!result.canceled && result.filePaths.length > 0) {
+                                loadDirectory(result.filePaths[0]);
+                            }
+                        });
                     }
-                }, 100); // Small delay to ensure spinner shows
+                }, 100);
 
                 // After successfully loading the directory, update the watcher
                 if (folderWatcher) {
@@ -1367,18 +1393,47 @@
                     if (savedState) {
                         const state = JSON.parse(savedState);
                         
-                        // Restore tabs
+                        // Clear any existing tabs first
+                        tabs.forEach(tab => tab.model.dispose());
+                        tabs = [];
+                        
+                        // Restore tabs, checking for duplicates
+                        const openPaths = new Set();
                         state.tabs.forEach(tabState => {
-                            createTab(tabState.path, tabState.content, tabState.language);
-                            if (tabs.length > 0) {
-                                const lastTab = tabs[tabs.length - 1];
-                                lastTab.saved = tabState.saved;
+                            // Skip if we already have this file open
+                            if (openPaths.has(tabState.path)) return;
+                            
+                            // For non-untitled files, read current content from disk
+                            if (tabState.path !== 'untitled' && fs.existsSync(tabState.path)) {
+                                try {
+                                    const diskContent = fs.readFileSync(tabState.path, 'utf-8');
+                                    // Use disk content and compare with saved content
+                                    createTab(tabState.path, diskContent, tabState.language);
+                                    openPaths.add(tabState.path);
+                                    
+                                    if (tabs.length > 0) {
+                                        const lastTab = tabs[tabs.length - 1];
+                                        // Compare current content with disk content
+                                        lastTab.saved = (diskContent === tabState.content);
+                                    }
+                                } catch (error) {
+                                    console.error('Error reading file:', error);
+                                }
+                            } else {
+                                // For untitled files or non-existent files, use saved content
+                                createTab(tabState.path, tabState.content, tabState.language);
+                                openPaths.add(tabState.path);
+                                
+                                if (tabs.length > 0) {
+                                    const lastTab = tabs[tabs.length - 1];
+                                    lastTab.saved = tabState.saved;
+                                }
                             }
                         });
                         
                         // Restore active tab
                         if (state.activeTabId && tabs.length > 0) {
-                            const tabToActivate = tabs.find(t => t.id === state.activeTabId) || tabs[0];
+                            const tabToActivate = tabs[0]; // Just activate the first tab since IDs will be different
                             activateTab(tabToActivate);
                         }
                     }
@@ -1472,18 +1527,51 @@
                 }
             }
 
-            // Finally, load initial state and directory
+            // Update the initial directory loading logic
             loadState();
             try {
-                const lastDirectory = localStorage.getItem('lastDirectory') || 'C:/';
-                if (fs.existsSync(lastDirectory)) {
+                const lastDirectory = localStorage.getItem('lastDirectory');
+                
+                if (lastDirectory && fs.existsSync(lastDirectory)) {
                     loadDirectory(lastDirectory);
                 } else {
-                    loadDirectory('C:/');
+                    // Show folder select dialog if no saved directory or it doesn't exist
+                    remote.dialog.showOpenDialog({
+                        properties: ['openDirectory'],
+                        title: 'Select Folder'
+                    }).then(result => {
+                        if (!result.canceled && result.filePaths.length > 0) {
+                            loadDirectory(result.filePaths[0]);
+                        } else {
+                            // Only fall back to C:/ if user cancels dialog
+                            if (fs.existsSync('C:/')) {
+                                loadDirectory('C:/');
+                            } else {
+                                showToast('Please select a valid folder to continue', 5000);
+                            }
+                        }
+                        hideSpinner(); // Hide spinner after directory is loaded
+                    });
                 }
             } catch (error) {
                 console.error('Error loading last directory:', error);
-                loadDirectory('C:/');
+                hideSpinner(); // Hide spinner on error
+                // Show folder select dialog on error
+                remote.dialog.showOpenDialog({
+                    properties: ['openDirectory'],
+                    title: 'Select Folder'
+                }).then(result => {
+                    if (!result.canceled && result.filePaths.length > 0) {
+                        loadDirectory(result.filePaths[0]);
+                    } else {
+                        if (fs.existsSync('C:/')) {
+                            loadDirectory('C:/');
+                        } else {
+                            showToast('Please select a valid folder to continue', 5000);
+                        }
+                    }
+                    hideSpinner(); // Hide spinner after directory is loaded
+                });
             }
         });
     </script>
