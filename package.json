@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "postinstall": "if not exist public\\vs mkdir public\\vs && xcopy /E /I /Y node_modules\\monaco-editor\\min\\vs public\\vs",
+    "postinstall": "if [ ! -d \"public/vs\" ]; then mkdir -p public/vs && cp -r node_modules/monaco-editor/min/vs public/vs; fi",
     "build": "electron-builder -w",
     "pack": "electron-builder --dir",
     "prepare-icons": "node scripts/prepare-icons.js",

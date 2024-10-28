@@ -1,0 +1,1002 @@
+
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.theme-option .theme-check {
+    display: none;
+    /* Hide by default */
+    color: var(--check);
+    /* Color for the checkmark */
+}
+
+.theme-option.active .theme-check {
+    display: inline;
+    /* Show only for active option */
+}
+
+#main-content {
+    display: flex;
+    flex: 1;
+    height: calc(100% - 55px);
+    /* Updated to account for titlebar (30px) + menubar (25px) */
+}
+
+#sidebar {
+    width: 250px;
+    min-width: 250px;
+    /* Ensure it doesn't shrink */
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    background-color: var(--sidebar-background-color);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+#file-explorer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar1) var(--scrollbar2);
+}
+
+.file-item,
+.folder-item {
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 3px;
+}
+
+.file-item:hover,
+.folder-item:hover {
+    background-color: var(--menu-hover);
+}
+
+.folder-item {
+    font-weight: bold;
+}
+
+.file-item::before {
+    content: "📄";
+    margin-right: 5px;
+}
+
+.folder-item::before {
+    content: "📁";
+    margin-right: 5px;
+}
+
+#editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Allow container to shrink below content size */
+    height: 100%;
+}
+
+#editor {
+    flex: 1;
+    width: 100%;
+    height: calc(100% - 60px);
+    /* 35px for tabs + 25px for path bar */
+}
+
+#titlebar {
+    height: 30px;
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    -webkit-app-region: drag;
+    justify-content: space-between;
+    color: var(--text-color);
+}
+
+#titlebar span {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.explorer-title {
+    padding: 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted-color);
+    font-weight: bold;
+}
+
+#window-controls {
+    display: flex;
+    -webkit-app-region: no-drag;
+}
+
+.window-control-button {
+    width: 45px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.window-control-button:hover {
+    background-color: var(--winbutton-color);
+}
+
+#close-button:hover {
+    background-color: #e81123;
+}
+
+/* Add new styles for tabs */
+#tabs-container {
+    height: 35px;
+    background-color: var(--background-color);
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar1) var(--scrollbar2);
+    min-width: 0;
+    /* Allow container to shrink below content size */
+    flex: 0 0 auto;
+}
+
+/* Styles for WebKit browsers like Chrome, Safari */
+#tabs-container::-webkit-scrollbar {
+    height: 6px;
+    /* Adjust the height to make it visible */
+}
+
+#tabs-container::-webkit-scrollbar-track {
+    background: var(--scrollbar2);
+}
+
+#tabs-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar1);
+    border-radius: 3px;
+}
+
+#tabs-container::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbarhover);
+}
+
+/* Update tab styles to allow shrinking */
+.tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 15px;
+    background-color: var(--inactive-tab-background);
+    border-right: 1px solid var(--border-color);
+    min-width: 100px;
+    /* Fixed minimum width */
+    width: 150px;
+    /* Fixed width */
+    flex: 0 0 auto;
+    /* Don't grow or shrink, keep size */
+    height: 35px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    white-space: nowrap;
+}
+
+.tab.active {
+    background-color: var(--active-tab-background);
+}
+
+.tab:hover {
+    background-color: var(--hover-tab-background);
+}
+
+.tab-title {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 20px;
+}
+
+.tab-title:has( .tab-close) {
+    padding-right: 20px;
+}
+
+.tab-close {
+    position: absolute;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.tab-close:hover {
+    background-color: var(--sidebar-background-color);
+}
+
+/* Add new styles for menu bar */
+#menubar {
+    height: 25px;
+    background-color: var(--background-color);
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    user-select: none;
+}
+
+.menu-item {
+    position: relative;
+    padding: 0 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.menu-item:hover {
+    background-color: var(--sidebar-background-color);
+}
+
+.menu-item:hover .menu-dropdown {
+    display: block;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    min-width: 180px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menu-option {
+    padding: 6px 20px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.menu-option:hover {
+    background-color: var(--menu-hover);
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 4px 0;
+}
+
+/* Add this style in the <style> section */
+.context-menu {
+    position: fixed;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    min-width: 180px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.context-menu-option {
+    padding: 6px 20px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.context-menu-option:hover {
+    background-color: var(--menu-hover);
+}
+
+.context-menu-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 4px 0;
+}
+
+/* Add this to your style section */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);;
+    border-radius: 4px;
+    min-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#editor-settings-modal {
+    display: none;
+}
+
+.modal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.modal-content {
+    padding: 16px;
+}
+
+.modal-content select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 13px;
+}
+
+/* Add focus style for the select dropdown */
+.modal-content select:focus {
+    outline: none;
+    border-color: var(--menu-hover);
+}
+
+.modal-input {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 2px;
+    font-size: 13px;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: var(--menu-hover);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 2px;
+    font-size: 13px;
+    cursor: pointer;
+    background-color: var(--menu-hover);
+    color: var(text-color);
+}
+
+.modal-button:hover {
+    background-color: var(--button-hover);
+}
+
+.modal-button.cancel {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.modal-button.cancel:hover {
+    background-color: var(--border-color);
+}
+
+/* Add these new styles */
+.file-item,
+.folder-item {
+    position: relative;
+}
+
+.rename-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 8px 4px 25px;
+    /* Added left padding to account for icon */
+    background: var(--sidebar-background-color);
+    border: 1px solid var(--menu-hover);
+    color: var(--text-color);
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    z-index: 10;
+}
+
+/* Custom scrollbar for the file explorer */
+#file-explorer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#file-explorer::-webkit-scrollbar-track {
+    background: var(--scrollbar2);
+}
+
+#file-explorer::-webkit-scrollbar-thumb {
+    background: var(--scrollbar1);
+    border-radius: 4px;
+}
+
+#file-explorer::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbarhover);
+}
+
+/* Loading spinner styles */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid transparent;
+    border-top-color: #094771;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-message {
+    position: absolute;
+    color: var(--text-color);
+    margin-top: 70px;
+    font-size: 14px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Add styles for the file path bar */
+#file-path-bar {
+    height: 25px;
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-family: Consolas, 'Courier New', monospace;
+}
+
+/* Update the inline suggestion style */
+.inline-suggestion {
+    color: var(--muted-color) !important;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+.chat-modal {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.chat-header {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.chat-close {
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.chat-close:hover {
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-message {
+    padding: 6px 10px;
+    border-radius: 4px;
+    max-width: 80%;
+    word-wrap: break-word;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.user-message {
+    background-color: --var(background-color);
+    align-self: flex-end;
+}
+
+.ai-message {
+    background-color: --var(--sidebar-background-color);
+    align-self: flex-start;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.ai-message pre {
+    background: --var(background-color);
+    border-radius: 3px;
+    padding: 8px;
+    margin: 8px 0;
+    overflow-x: auto;
+}
+
+.ai-message code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ai-message p {
+    margin: 8px 0;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 6px 8px;
+    background-color: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: inherit;
+    resize: none;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--menu-hover);
+}
+
+.chat-send {
+    padding: 8px 16px;
+    background-color: var(--menu-hover);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: var(--scrollbar2);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--scrollbar1);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbarhover);
+}
+
+.chat-file-selector {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.chat-file-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    background: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--muted-color);
+}
+
+.chat-file-checkbox {
+    width: 12px;
+    height: 12px;
+    accent-color: var(--menu-hover);
+}
+
+.chat-input {
+    height: 32px;
+    /* Make input smaller */
+    min-height: 32px;
+    max-height: 32px;
+}
+
+/* Update input container styles */
+.chat-input-container {
+    padding: 8px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+    height: 48px;
+    align-items: center;
+}
+
+.chat-input {
+    height: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 6px 8px;
+    line-height: 20px;
+    font-size: 13px;
+}
+
+.chat-send {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+}
+
+/* Add file selector dropdown styles */
+.file-selector-dropdown {
+    position: fixed;
+    max-height: 300px;
+    width: 250px;
+    background: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+.file-selector-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-selector-dropdown::-webkit-scrollbar-track {
+    background: var(--scrollbar2);
+}
+
+.file-selector-dropdown::-webkit-scrollbar-thumb {
+    background: var(--scrollbar1);
+    border-radius: 4px;
+}
+
+.file-selector-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.file-selector-item:hover {
+    background: var(--background-color);
+}
+
+.file-selector-item.folder::before {
+    content: "📁";
+}
+
+.file-selector-item.file::before {
+    content: "📄";
+}
+
+/* Add tab context menu styles */
+.tab-context-menu {
+    position: fixed;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 160px;
+}
+
+#side-bar {
+    width: 50px;
+    /* Keep fixed width */
+    min-width: 50px;
+    /* Ensure it doesn't shrink */
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    background-color: var(--sidebar-background-color);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+}
+
+.side-bar-item {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--muted-color);
+}
+
+.side-bar-item:hover {
+    color: var(--sidebar-icon-color-active);
+}
+
+.side-bar-item.active {
+    color: var(--sidebar-icon-color-active);
+    border-left: 2px solid var(--sidebar-icon-color-active);
+}
+
+.side-bar-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Add style for error messages in chat */
+.ai-message.error {
+    background-color: var(--sidebar-background-color);
+    color: #ff6b6b;
+    border-left: 3px solid #ff4444;
+}
+
+/* Add submenu styles */
+.has-submenu {
+    position: relative;
+}
+
+.has-submenu:after {
+    content: '▶';
+    position: absolute;
+    right: 10px;
+    font-size: 10px;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    min-width: 180px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.has-submenu:hover .submenu {
+    display: block;
+}
+
+/* Add line highlighting styles */
+.line-highlight {
+    background-color: var(--menu-hover);
+    border-left: 2px solid var(--menu-hover);
+}
+
+.line-highlight-marker {
+    background-color: var(--menu-hover);
+}
+
+/* Add submenu styles */
+.has-submenu {
+    position: relative;
+}
+
+.has-submenu:after {
+    content: '▶';
+    position: absolute;
+    right: 10px;
+    font-size: 10px;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    min-width: 180px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.has-submenu:hover .submenu {
+    display: block;
+}
+
+.submenu .menu-option {
+    padding: 6px 20px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.submenu .menu-option:hover {
+    background-color: var(--menu-hover);
+}
+
+/* Add styles for line highlighting */
+.line-highlight {
+    background-color: var(--menu-hover);
+    border-left: 3px solid var(--menu-hover);
+}
+
+.line-highlight-marker {
+    background-color: var(--menu-hover);
+}
+
+/* Add these styles to your existing CSS */
+.lineHighlight {
+    background-color: var(--menu-hover);
+    border: none;
+}
+
+.lineDecoration {
+    background-color: var(--menu-hover);
+    width: 3px !important;
+    margin-left: 3px;
+}
+
+/* Add styles for line highlighting */
+.lineHighlight {
+    background-color: var(--menu-hover);
+    border: none;
+}
+
+.lineDecoration {
+    background-color: var(--menu-hover);
+    width: 3px !important;
+    margin-left: 3px;
+}
+
+/* Add styles for search interface */
+#search-container {
+    display: none;
+    /* Hidden by default */
+    flex-direction: column;
+    height: 100%;
+}
+
+.search-input-container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+}
+
+.search-input {
+    width: 210px;
+    padding: 6px 8px;
+    background-color: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 2px;
+    font-size: 13px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--menu-hover);
+}
+
+.search-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.search-result-item {
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.search-result-item:hover {
+    background-color: var(--background-color);
+}
+
+.result-path {
+    color: var(--muted-color);
+    font-size: 11px;
+}
+
+.result-preview {
+    display: none;
+    color: #bbbbbb;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Add theme checkmark styles */
+.theme-option {
+    display: flex;
+    align-items: end;
+}
+
+.theme-check {
+    width: 16px;
+    margin-right: 8px;
+    font-weight: bold;
+}

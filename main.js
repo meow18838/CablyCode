@@ -25,6 +25,8 @@ function createWindow(filePath = null) {
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
+        minWidth: 800,
+        minHeight: 600,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -32,7 +34,7 @@ function createWindow(filePath = null) {
             enableRemoteModule: true,
             devTools: false
         },
-        icon: app.isPackaged 
+        icon: app.isPackaged
             ? path.join(process.resourcesPath, 'image.png')
             : path.join(__dirname, 'image.png'),
         title: 'CablyCode',

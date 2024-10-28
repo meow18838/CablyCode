@@ -1,0 +1,83 @@
+:root {
+    --background-color: #1e1e1e;
+    --text-color: #ffffff;
+    --sidebar-background-color: #252526;
+    --sidebar-icon-color-active: #eeeeee;
+    --active-tab-background: #1e1e1e;
+    --inactive-tab-background: #2d2d2d;
+    --hover-tab-background: #333333;
+    --muted-color: #dddddd;
+    --border-color: #333;
+    --winbutton-color: #444;
+    --scrollbar1: #424242;
+    --scrollbar2: #1e1e1e;
+    --scrollbarhover: #4f4f4f;
+    --mutedbg-color: #777777;
+    --menu-hover: #094771;
+    --check: #d0e7ff;
+    --button-hover: #0d5b8f;
+    --themestyle: vs-dark;
+}
+
+body.dark-theme {
+    --background-color: #1e1e1e;
+    --text-color: #ffffff;
+    --sidebar-background-color: #252526;
+    --sidebar-icon-color-active: #eeeeee;
+    --active-tab-background: #1e1e1e;
+    --inactive-tab-background: #2d2d2d;
+    --hover-tab-background: #333333;
+    --muted-color: #dddddd;
+    --border-color: #333;
+    --winbutton-color: #444;
+    --scrollbar1: #424242;
+    --scrollbar2: #1e1e1e;
+    --scrollbarhover: #4f4f4f;
+    --mutedbg-color: #777777;
+    --menu-hover: #094771;
+    --check: #d0e7ff;
+    --button-hover: #0d5b8f;
+    --themestyle: vs-dark;
+}
+
+body.light-theme {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --sidebar-background-color: #f5f5f5;
+    --sidebar-icon-color-active: #222222;
+    --active-tab-background: #f3f3f3;
+    --inactive-tab-background: #d5d5d5;
+    --hover-tab-background: #cccccc;
+    --muted-color: #777777;
+    --border-color: #ccc;
+    --winbutton-color: #aaa;
+    --scrollbar1: #a3a3a3;
+    --scrollbar2: #767676;
+    --scrollbarhover: #999999;
+    --mutedbg-color: #999999;
+    --menu-hover: #d0e7ff;
+    --check: #094771;
+    --button-hover: #a9bbce;
+    --themestyle: vs;
+}
+
+body.contrast-theme {
+    --background-color: #000000;
+    --text-color: #ffffff;
+    --sidebar-background-color: #1a1a1a;
+    --sidebar-icon-color-active: #ffffff;
+    --active-tab-background: #333333;
+    --inactive-tab-background: #1f1f1f;
+    --hover-tab-background: #444444;
+    --muted-color: #cccccc;
+    --border-color: #ffffff;
+    --winbutton-color: #222222;
+    --scrollbar1: #888888;
+    --scrollbar2: #444444;
+    --scrollbarhover: #aaaaaa;
+    --mutedbg-color: #333333;
+    --menu-hover: #005f8d;
+    --check: #d0e7ff;
+    --button-hover: #007acc;
+    --themestyle: hc-black;
+}
