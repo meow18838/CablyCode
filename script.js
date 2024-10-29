@@ -169,14 +169,14 @@ function updateEditorTheme() {
         }
     });
 
-    try {
-        editor.updateOptions({
-            fontSize: parseInt(savedFontSize),
-            lineHeight: parseFloat(savedLineHeight)
-        });
-    } catch (error) {
-        alert(error);
-    }
+    // Retrieve and apply saved editor settings
+    const savedFontSize = parseInt(localStorage.getItem('fontSize') || DEFAULT_FONT_SIZE);
+    const savedLineHeight = parseFloat(localStorage.getItem('lineHeight') || DEFAULT_LINE_HEIGHT);
+
+    editor.updateOptions({
+        fontSize: savedFontSize,
+        lineHeight: savedLineHeight
+    });
 
     // Apply the theme to the editor
     monaco.editor.setTheme('customTheme');
@@ -246,6 +246,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // Add this at the top level, before require.config
 let currentSearchController = null;
+
+let currentWorkingDirectory = process.cwd();
 
 require(['vs/editor/editor.main'], function () {
     // Add these variable declarations at the top
@@ -864,6 +866,8 @@ require(['vs/editor/editor.main'], function () {
                 // Save the directory AFTER confirming it exists
                 currentPath = dirPath;
                 saveCurrentDirectory(dirPath);  // This saves to localStorage
+                currentWorkingDirectory = dirPath; // Update the global working directory variable
+                executeCommand(process.platform === 'win32' ? 'cls' : 'clear'); 
 
                 const fileExplorer = document.getElementById('file-explorer');
                 fileExplorer.innerHTML = '';
@@ -2169,7 +2173,7 @@ async function commitChanges() {
         await git.add('.gitignore');
 
         // Add all changes, respecting .gitignore
-        await git.add('./*');
+        await git.add(`./`)
 
         // Commit with the provided message
         await git.commit(commitMessage);
@@ -2213,6 +2217,7 @@ document.getElementById('show-all-commits').addEventListener('click', async () =
         alert('Error fetching commits:' + error);
         showToast('Error fetching commits: ' + error.message);
     }
+    
 });
 
 // Function to show commit details
@@ -2281,3 +2286,152 @@ document.getElementById('toggle-sidebar').addEventListener('click', function () 
     }
 });
 
+const consoleContainer = document.getElementById('console-container');
+consoleContainer.style.height='0px';
+const totalContainer = document.getElementById('container');
+
+
+const terminal = new Terminal({
+    cursorBlink: true,
+    rows: 12,
+    cols: Math.floor((totalContainer.clientWidth - 55) / 9) // Adjust based on average character width
+});
+terminal.open(consoleContainer);
+terminal.write(`$ [${currentWorkingDirectory}] `);
+
+// Handle window resize to adjust terminal size
+window.addEventListener('resize', () => {
+    const newCols = Math.floor((totalContainer.clientWidth - 55) / 9); // Recalculate columns
+    terminal.resize(newCols, terminal.rows); // Resize terminal
+});
+
+consoleContainer.addEventListener('click', () => {
+    terminal.focus(); // Focus terminal when clicked
+});
+
+// Function to toggle console visibility
+function toggleConsole() {
+    // Check if the terminal is already created
+
+    const terminalHeight = 220; // Total height for 12 rows
+
+    if (consoleContainer.style.height === '0px') {
+        consoleContainer.style.height = `${terminalHeight}px`; // Set to calculated height
+        consoleContainer.style.display = 'block'; // Show console container
+        document.getElementById("container").style.height = `calc(100vh - ${terminalHeight}px)`; // Adjust the main container height
+    } else {
+        consoleContainer.style.height = '0px'; // Collapse console
+        setTimeout(() => {
+            consoleContainer.style.display = 'none'; // Hide console after collapse
+            document.getElementById("container").style.height = "100vh"; // Reset the main container height
+        }, 200); // Delay to allow for collapsing animation
+    }
+}
+
+// Event listener for the console button
+document.getElementById('console-button').addEventListener('click', toggleConsole);
+
+
+// Listen for input from the terminal
+let currentCommand = ""; // Variable to hold the current command
+let commandHistory = []; // Array to hold the command history
+let commandHistoryIndex = -1; // Index for the command history
+
+let isProcessingCommand = false; // Flag to track if a command is being processed
+
+terminal.onData((data) => {
+    const ev = { key: data };
+
+
+    // Detect Ctrl + C
+    if (data === '\u0003') {
+        if (currentChildProcess) {
+            currentChildProcess.kill('SIGSTOP');  // Use SIGINT instead of SIGSTOP
+            terminal.write('\r\nCommand terminated.\r\n');
+            currentChildProcess = null;
+        }
+        currentCommand = '';
+        terminal.write(`\r\n$ [${currentWorkingDirectory}] `);  
+        return;
+    }
+
+    if (isProcessingCommand) {
+        // If a command is being processed, block further input
+        return;
+    }
+
+    if (data === '\r') { // Enter key
+        terminal.write('\r\n');
+        executeCommand(currentCommand);
+        commandHistory.push(currentCommand); // Add command to history
+        commandHistoryIndex = commandHistory.length; // Reset history index
+        currentCommand = '';
+    } else if (data === '\u007F') { // Backspace
+        if (currentCommand.length > 0) {
+            currentCommand = currentCommand.slice(0, -1);
+            terminal.write('\b \b');
+        }
+    } else if (ev.key === 'Delete') {
+        if (currentCommand.length > 0) {
+            currentCommand = currentCommand.slice(1);
+            terminal.write('\r\n$ ' + currentCommand);
+        }
+    } else if (ev.key === 'ArrowUp') {
+        if (commandHistoryIndex > 0) {
+            commandHistoryIndex--;
+            currentCommand = commandHistory[commandHistoryIndex];
+            terminal.write('\r\n$ ' + currentCommand);
+        }
+    } else if (ev.key === 'ArrowDown') {
+        if (commandHistoryIndex < commandHistory.length - 1) {
+            commandHistoryIndex++;
+            currentCommand = commandHistory[commandHistoryIndex];
+            terminal.write('\r\n$ ' + currentCommand);
+        } else {
+            currentCommand = '';
+            terminal.write('\r\n$ ');
+        }
+    } else {
+        currentCommand += data;
+        terminal.write(data);
+    }
+});
+
+let currentChildProcess = null; // Declare the variable at the top
+
+function executeCommand(command) {
+    if (!command) return; // Do nothing if command is empty
+
+    terminal.write('\r\n'); // Move to the next line for output
+    isProcessingCommand = true; // Set the processing flag
+
+    // Use exec to run the command and assign the child process to currentChildProcess
+    currentChildProcess = exec(command, { cwd: currentWorkingDirectory }, (error, stdout, stderr) => {
+        if (error) {
+            terminal.write(`\x1b[31mError: ${stderr}\x1b[0m\r\n`); // Write error in red
+        } else {
+            // Write the standard output
+            const outputLines = stdout.split('\n');
+            outputLines.forEach(line => {
+                // Color output based on conditions
+                if (line.includes('warning')) {
+                    terminal.write(`\x1b[33m${line}\x1b[0m\r\n`); // Yellow for warning
+                } else {
+                    terminal.write(`\x1b[32m${line}\x1b[0m\r\n`); // Green for normal output
+                }
+            });
+        }
+        terminal.write(`$ [${currentWorkingDirectory}] `);
+        isProcessingCommand = false; // Reset the processing flag
+        currentChildProcess = null; // Reset the currentChildProcess variable
+    });
+}
+// Clear terminal functionality
+// Clear terminal functionality
+function clearTerminal() {
+    terminal.clear();
+    currentCommand = ''; // Reset current command
+    commandHistoryIndex = commandHistory.length; // Reset command history index
+}
+// Event listener to clear the terminal when button is clicked
+document.getElementById('clear-console-button').addEventListener('click', clearTerminal);

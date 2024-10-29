@@ -5,6 +5,7 @@
     <title>CablyCode</title>
     <link href="themes.css" rel="stylesheet" type="text/css">
     <link href="style.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="node_modules/xterm/css/xterm.css">
 </head>
 
 <body>
@@ -69,6 +70,9 @@
             </div>
             <!-- Add this to the menubar div, after the Settings menu -->
             <div class="menu-item" style="margin-left: auto;">
+                <span id="console-button" style="cursor: pointer;">Console</span>
+            </div>
+            <div class="menu-item">
                 <span id="ai-chat-button" style="cursor: pointer;">AI Chat</span>
             </div>
         </div>
@@ -127,6 +131,7 @@
             background: var(--sidebar-background-color); color: var(--text-color); padding: 12px 24px; border-radius: 4px; 
             z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
         </div>
+        <div id="console-container" style="display: none; height: 10px;"></div>
     </div>
 
     <div class="spinner-overlay">
@@ -219,6 +224,8 @@
         const hljs = require('highlight.js');  // Add this
         const marked = require('marked');      // Add this
         const Git = require('simple-git');
+        const { exec } = require('child_process');
+        const { Terminal } = require('xterm');
         // Store these in global scope for use later
         window.electronFS = fs;
         window.electronPath = path;
