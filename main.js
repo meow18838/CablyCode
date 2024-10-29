@@ -32,7 +32,7 @@ function createWindow(filePath = null) {
             contextIsolation: false,
             webSecurity: false,
             enableRemoteModule: true,
-            devTools: false
+            //devTools: false
         },
         icon: app.isPackaged
             ? path.join(process.resourcesPath, 'image.png')

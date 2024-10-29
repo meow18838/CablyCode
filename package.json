@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "postinstall": "if [ ! -d \"public/vs\" ]; then mkdir -p public/vs && cp -r node_modules/monaco-editor/min/vs public/vs; fi",
-    "build": "electron-builder -w",
+    "build": "electron-builder -l",
     "pack": "electron-builder --dir",
     "prepare-icons": "node scripts/prepare-icons.js",
     "dist": "electron-builder",
@@ -117,7 +117,9 @@
     "is-obj": "^2.0.0",
     "marked": "^9.1.0",
     "monaco-editor": "^0.45.0",
+    "path": "^0.12.7",
     "pkg-up": "^3.1.0",
+    "simple-git": "^3.22.0",
     "winreg": "^1.2.5"
   }
 }

@@ -1,5 +1,6 @@
 
 
+
 body {
     margin: 0;
     padding: 0;
@@ -14,6 +15,157 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+.commits-list {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#show-all-commits {
+    padding: 8px 16px;
+    background-color: var(--menu-hover);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px; /* Optional: Add space below the button */
+}
+
+#show-all-commits:hover {
+    background-color: var(--button-hover);
+}
+
+.commit-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.commit-item:hover {
+    background-color: var(--menu-hover);
+}
+
+.commit-item:last-child {
+    border-bottom: none;
+}
+
+#image-container {
+    flex: 1;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+    overflow: hidden; /* Add this to prevent scrolling */
+}
+
+#git-container {
+    padding: 10px;
+    overflow-y: auto;
+    display: none;
+    flex: 1;
+    background-color: var(--sidebar-background-color);
+    color: var(--text-color);
+}
+
+.init-repo-button {
+    padding: 8px 16px;
+    background-color: var(--menu-hover);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px; /* Optional: Add some space above the button */
+}
+
+.init-repo-button:hover {
+    background-color: var(--button-hover);
+}
+
+#commit-message {
+    width: calc(100% - 20px); /* Adjust to create a gap with the container */
+    padding: 8px;
+    margin-bottom: 10px;
+    background-color: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+
+#commit-message:focus {
+    border-color: var(--menu-hover);
+}
+
+/* Style for the button in version control */
+#commit-button {
+    padding: 8px 16px;
+    background-color: var(--menu-hover);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#commit-button:hover {
+    background-color: var(--button-hover);
+}
+
+#git-container::-webkit-scrollbar {
+    width: 8px; /* Adjust scrollbar width */
+}
+
+#git-container::-webkit-scrollbar-track {
+    background: var(--scrollbar2); /* Track color */
+}
+
+#git-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar1); /* Thumb color */
+    border-radius: 4px; /* Rounded edges */
+}
+
+#git-container::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbarhover); /* Hover color */
+}
+
+.git-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#git-status {
+    margin-bottom: 10px;
+}
+
+.git-branch {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.git-changed-file {
+    padding: 4px 0;
+    font-size: 13px;
+}
+
+#image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* This ensures the image scales while maintaining aspect ratio */
+    display: block; /* Ensures no extra space around the image */
 }
 
 .theme-option .theme-check {
@@ -63,6 +215,10 @@ body {
     display: flex;
     align-items: center;
     border-radius: 3px;
+    width: 190px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .file-item:hover,
@@ -72,16 +228,6 @@ body {
 
 .folder-item {
     font-weight: bold;
-}
-
-.file-item::before {
-    content: "📄";
-    margin-right: 5px;
-}
-
-.folder-item::before {
-    content: "📁";
-    margin-right: 5px;
 }
 
 #editor-container {
@@ -212,11 +358,16 @@ body {
 }
 
 .tab-title {
-    font-size: 12px;
+    font-size: 17px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: 20px;
+}
+
+.tab-title svg {
+    width: 13px;
+    height: 13px;
 }
 
 .tab-title:has( .tab-close) {
