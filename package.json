@@ -1,12 +1,12 @@
 {
   "name": "cablycode",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "CablyCode - A modern code editor",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "postinstall": "if [ ! -d \"public/vs\" ]; then mkdir -p public/vs && cp -r node_modules/monaco-editor/min/vs public/vs; fi",
-    "build": "electron-builder -l",
+    "build": "electron-builder -w",
     "pack": "electron-builder --dir",
     "prepare-icons": "node scripts/prepare-icons.js",
     "dist": "electron-builder",
