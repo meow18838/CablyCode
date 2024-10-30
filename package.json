@@ -1,6 +1,6 @@
 {
-  "name": "cablycode",
-  "version": "1.4.1",
+  "name": "CablyCode",
+  "version": "1.0",
   "description": "CablyCode - A modern code editor",
   "main": "main.js",
   "scripts": {
