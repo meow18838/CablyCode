@@ -1,0 +1,8 @@
+[
+    {
+        "name": "Test Extension",
+        "description": "This extension is just a test if extensions would work",
+        "script": "alert('test');",
+        "warn": false
+    }
+]
