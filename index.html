@@ -159,6 +159,16 @@
             <button class="chat-send" id="chat-send">Send</button>
         </div>
     </div>
+    <!-- Commit Details Modal -->
+<div class="modal-overlay" id="commit-details-modal">
+    <div class="modal">
+        <div class="modal-header">Commit Details</div>
+        <div class="modal-content" id="commit-details-content"></div>
+        <div class="modal-buttons">
+            <button class="modal-button cancel" id="cancel-commit-details">Close</button>
+        </div>
+    </div>
+</div>
 
     <!-- API key modal -->
     <div class="modal-overlay" id="api-key-modal">
@@ -224,7 +234,7 @@
         const hljs = require('highlight.js');  // Add this
         const marked = require('marked');      // Add this
         const Git = require('simple-git');
-        const { exec } = require('child_process');
+        const { exec, spawn } = require('child_process');
         const { Terminal } = require('xterm');
         // Store these in global scope for use later
         window.electronFS = fs;

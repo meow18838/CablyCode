@@ -300,7 +300,11 @@ require(['vs/editor/editor.main'], function () {
 
                 case 's':
                     e.preventDefault();
-                    if (activeTab && !activeTab.isImage) {  // Ensure it's not an image tab
+                    if (activeTab.path.includes(':old-') || activeTab.isImage) {
+                        showToast('Cant save');
+                        break; // Prevent saving
+                    }
+                    if (activeTab) {  // Ensure it's not an image tab
                         if (activeTab.path === 'untitled') {
                             const result = await remote.dialog.showSaveDialog({
                                 defaultPath: currentPath,
@@ -1041,8 +1045,7 @@ require(['vs/editor/editor.main'], function () {
     }
 
     function checkFileContent(tab) {
-        if (!tab || tab.path === 'untitled' || tab.isInvalid) return; // Skip if invalid
-
+        if (!tab || tab.path === 'untitled' || tab.isInvalid || tab.path.includes(':old-')) return; 
         try {
             if (!fs.existsSync(tab.path)) {
                 console.log(`File no longer exists: ${tab.path}`);
@@ -1120,11 +1123,19 @@ require(['vs/editor/editor.main'], function () {
 
                 case 'Save':
                     if (activeTab) {
+                        if (activeTab.path.includes(':old-') || activeTab.isImage) {
+                            showToast('Cant save');
+                            return; // Prevent saving
+                        }
                         if (activeTab.path === 'untitled') {
                             const saveResult = await remote.dialog.showSaveDialog({
                                 defaultPath: currentPath,
                                 filters: [{ name: 'All Files', extensions: ['*'] }]
                             });
+                            if (activeTab.path.includes(':old-')) {
+                                showToast('Cannot save files with ":old-" in the title');
+                                return; // Prevent saving
+                            }
 
                             if (!saveResult.canceled && saveResult.filePath) {
                                 const content = editor.getValue();
@@ -1154,6 +1165,10 @@ require(['vs/editor/editor.main'], function () {
 
                 case 'Save As...':
                     if (activeTab) {
+                        if (activeTab.path.includes(':old-') || activeTab.isImage) {
+                            showToast('Cant save');
+                            return; // Prevent saving
+                        }
                         const saveAsResult = await remote.dialog.showSaveDialog({
                             defaultPath: currentPath,
                             filters: [{ name: 'All Files', extensions: ['*'] }]
@@ -2068,6 +2083,43 @@ require(['vs/editor/editor.main'], function () {
         loadGitStatus();
     });
 
+async function showCommitDetails(commit) {
+    const commitDetailsContent = document.getElementById('commit-details-content');
+    commitDetailsContent.innerHTML = ''; // Clear previous content
+
+    // Fetch changed files for the commit
+    const changedFiles = await git.show([commit.hash, '--name-status']);
+    const filesListElement = document.createElement('ul');
+    const lines = changedFiles.split('\n');
+    let filesHeaderAdded = false;
+
+    for (const line of lines) {
+        const match = line.match(/^(M|A|D)\s+(.*)/);
+        if (match) {
+            const filePath = match[2].trim();
+            const changeType = match[1]; // 'M', 'A', or 'D'
+
+            // Create a list item for each changed file
+            const listItem = document.createElement('li');
+            listItem.className = 'commit-item';
+            listItem.textContent = `${changeType === 'A' ? '+' : changeType === 'D' ? '-' : '~'} ${filePath}`;
+
+            // Add click event to each item to open code changes in a new tab
+            listItem.addEventListener('click', async () => {
+                const diff = await git.diff([`${commit.hash}~1`, commit.hash, '--', filePath]);
+                createTab(filePath+":old-"+commit.hash, diff, 'diff'); // Open diff in a new tab
+                document.getElementById('commit-details-modal').style.display = 'none'; // Close modal
+            });
+
+            filesListElement.appendChild(listItem);
+        }
+    }
+
+    commitDetailsContent.appendChild(filesListElement);
+    const modal = document.getElementById('commit-details-modal');
+    modal.style.display = 'flex'; // Show the commit details modal
+}
+
     async function loadGitStatus() {
         const gitContainer = document.getElementById('git-status');
         gitContainer.innerHTML = ''; // Clear existing content
@@ -2220,10 +2272,27 @@ document.getElementById('show-all-commits').addEventListener('click', async () =
     
 });
 
-// Function to show commit details
-function showCommitDetails(commit) {
-    alert(`Commit Details:\n\nMessage: ${commit.message}\nAuthor: ${commit.author_name}\nDate: ${commit.date}\nHash: ${commit.hash}`);
-}
+document.getElementById('cancel-commit-details').addEventListener('click', () => {
+    document.getElementById('commit-details-modal').style.display = 'none';
+});
+
+// Close modal when clicking outside
+document.getElementById('commit-details-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'commit-details-modal') {
+        e.target.style.display = 'none';
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
 });
 // Update the search icon click handler
 document.getElementById('search-icon').addEventListener('click', function () {
@@ -2339,92 +2408,108 @@ let commandHistoryIndex = -1; // Index for the command history
 
 let isProcessingCommand = false; // Flag to track if a command is being processed
 
+let waitingForInput = false; // New variable to track if we're waiting for input
+
+// Listen for input from the terminal
 terminal.onData((data) => {
-    const ev = { key: data };
-
-
-    // Detect Ctrl + C
-    if (data === '\u0003') {
+    if (data === '\u0003') { // Ctrl + C
         if (currentChildProcess) {
-            currentChildProcess.kill('SIGSTOP');  // Use SIGINT instead of SIGSTOP
+            currentChildProcess.kill('SIGINT'); // Send SIGINT to the child process
             terminal.write('\r\nCommand terminated.\r\n');
+            isProcessingCommand=false;
             currentChildProcess = null;
         }
         currentCommand = '';
-        terminal.write(`\r\n$ [${currentWorkingDirectory}] `);  
+        terminal.write(`\r\n$ [${currentWorkingDirectory}] `);
         return;
     }
-
     if (isProcessingCommand) {
-        // If a command is being processed, block further input
         return;
     }
 
+    // Handle Enter key
     if (data === '\r') { // Enter key
         terminal.write('\r\n');
-        executeCommand(currentCommand);
+        executeCommand(currentCommand); // Execute the command
         commandHistory.push(currentCommand); // Add command to history
         commandHistoryIndex = commandHistory.length; // Reset history index
-        currentCommand = '';
+        currentCommand = ''; // Reset the command buffer
     } else if (data === '\u007F') { // Backspace
         if (currentCommand.length > 0) {
             currentCommand = currentCommand.slice(0, -1);
             terminal.write('\b \b');
         }
-    } else if (ev.key === 'Delete') {
-        if (currentCommand.length > 0) {
-            currentCommand = currentCommand.slice(1);
-            terminal.write('\r\n$ ' + currentCommand);
-        }
-    } else if (ev.key === 'ArrowUp') {
+    } else if (data === 'ArrowUp') {
         if (commandHistoryIndex > 0) {
             commandHistoryIndex--;
             currentCommand = commandHistory[commandHistoryIndex];
-            terminal.write('\r\n$ ' + currentCommand);
+            terminal.write(`\r\n$ ${currentCommand}`);
         }
-    } else if (ev.key === 'ArrowDown') {
+    } else if (data === 'ArrowDown') {
         if (commandHistoryIndex < commandHistory.length - 1) {
             commandHistoryIndex++;
             currentCommand = commandHistory[commandHistoryIndex];
-            terminal.write('\r\n$ ' + currentCommand);
+            terminal.write(`\r\n$ ${currentCommand}`);
         } else {
             currentCommand = '';
             terminal.write('\r\n$ ');
         }
     } else {
-        currentCommand += data;
-        terminal.write(data);
+        currentCommand += data; // Append the input data to the current command
+        terminal.write(data); // Echo data to the terminal
     }
 });
 
-let currentChildProcess = null; // Declare the variable at the top
-
+let currentChildProcess=null;
+// Function to execute commands
+// Function to execute commands
 function executeCommand(command) {
     if (!command) return; // Do nothing if command is empty
 
     terminal.write('\r\n'); // Move to the next line for output
-    isProcessingCommand = true; // Set the processing flag
 
-    // Use exec to run the command and assign the child process to currentChildProcess
-    currentChildProcess = exec(command, { cwd: currentWorkingDirectory }, (error, stdout, stderr) => {
-        if (error) {
-            terminal.write(`\x1b[31mError: ${stderr}\x1b[0m\r\n`); // Write error in red
-        } else {
-            // Write the standard output
-            const outputLines = stdout.split('\n');
-            outputLines.forEach(line => {
-                // Color output based on conditions
-                if (line.includes('warning')) {
-                    terminal.write(`\x1b[33m${line}\x1b[0m\r\n`); // Yellow for warning
-                } else {
-                    terminal.write(`\x1b[32m${line}\x1b[0m\r\n`); // Green for normal output
-                }
-            });
-        }
-        terminal.write(`$ [${currentWorkingDirectory}] `);
+    const commandParts = command.split(' ');
+    const cmd = commandParts[0];
+    const args = commandParts.slice(1);
+    isProcessingCommand = true;
+
+    // Use spawn to run the command
+    currentChildProcess = spawn(cmd, args, { cwd: currentWorkingDirectory, shell: true });
+
+    // Capture stdout and write it to the terminal
+    currentChildProcess.stdout.on('data', (data) => {
+        // Convert data to string, clean it up, and ensure it behaves like a terminal
+        const output = data.toString();
+        // Split output by lines and write each line separately
+        const outputLines = output.split('\n');
+        outputLines.forEach((line, index) => {
+            if (line) { // Only write non-empty lines
+                terminal.write(line.trimRight() + (index < outputLines.length - 1 ? '\r\n' : '')); // Trim trailing spaces
+            }
+        });
+    });
+
+    // Capture stderr and write it to the terminal
+    currentChildProcess.stderr.on('data', (data) => {
+        terminal.write(`\x1b[31mError: ${data.toString().trim()}\x1b[0m\r\n`); // Write error in red and trim
+    });
+
+    // Handle process exit
+    currentChildProcess.on('exit', (code) => {
+        terminal.write(`\r\n$ [${currentWorkingDirectory}] `); // Reset prompt
         isProcessingCommand = false; // Reset the processing flag
         currentChildProcess = null; // Reset the currentChildProcess variable
     });
+
+    // Handle process error (like command not found)
+    currentChildProcess.on('error', (err) => {
+        terminal.write(`\x1b[31mError: Unable to start process: ${err.message}\x1b[0m\r\n`); // Display error in red
+        isProcessingCommand = false; // Reset the processing flag
+        currentChildProcess = null; // Reset the currentChildProcess variable
+    });
+
+    // After starting the command, you can reset the current command
+    currentCommand = '';
 }
 // Clear terminal functionality
 // Clear terminal functionality
