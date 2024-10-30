@@ -17,7 +17,7 @@ CablyCode is a modern code editor built with Electron, designed for developers w
 To get started with CablyCode, follow these steps:
 
 1. Clone the repository:
-   - git clone https://github.com/yourusername/cablycode.git
+   - git clone https://github.com/meow18838/cablycode.git
    - cd cablycode
 2. Install the dependencies:
    - npm install
@@ -26,7 +26,7 @@ To get started with CablyCode, follow these steps:
 
 ## API Key
 
-To use the AI features, you need to obtain your API key. You can get your API key in the [Discord link here].
+To use the AI features, you need to obtain your API key. You can get your API key in our [Discord](https://discord.gg/FM3sr5YfRG).
 
 ## Building Extensions
 
@@ -40,3 +40,8 @@ Your contributions are welcome!
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Disclaimer
+
+This project is actively maintained.
+If you steal it, you just get yourself and old version within days.
