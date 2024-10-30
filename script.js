@@ -204,6 +204,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     const themeMenu = document.getElementById('theme-menu');
+    loadInstalledExtensions();
 
     themes.forEach(theme => {
         const themeOption = document.createElement('div');
@@ -242,7 +243,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateEditorTheme();
 });
 
+// Function to load installed extensions
+function loadInstalledExtensions() {
+    try{
+    const installedExtensions = JSON.parse(localStorage.getItem('installedExtensions')) || [];
+    installedExtensions.forEach(extension => {
 
+        // Check if there is any script to execute
+        if (extension.script) {
+            try {
+                // Use eval to run the script
+                eval(extension.script);
+            } catch (error) {
+                alert(`Error executing script for ${extension.name}:`+ error);
+            }
+        }
+    });
+    }catch(err){alert(err)}
+}
 
 // Add this at the top level, before require.config
 let currentSearchController = null;
@@ -2057,6 +2075,8 @@ require(['vs/editor/editor.main'], function () {
         const gitContainer = document.getElementById('git-container');
         const searchContainer = document.getElementById('search-container');
         const fileExplorer = document.getElementById('file-explorer');
+        document.getElementById('extension-icon').classList.remove('active');
+        document.getElementById('ext-container').style.display= 'none';
         const explorerIcon = document.getElementById('explorer-icon');
         const searchIcon = document.getElementById('search-icon');
         document.querySelector('.explorer-title').textContent = 'VERSION CONTROL';
@@ -2299,12 +2319,13 @@ document.getElementById('search-icon').addEventListener('click', function () {
     this.classList.add('active');
     document.getElementById('explorer-icon').classList.remove('active');
     document.getElementById('git-icon').classList.remove('active'); // Remove active class from git-icon
-
+    document.getElementById('extension-icon').classList.remove('active');
     // Hide Git container
     document.getElementById('git-container').style.display = 'none';
 
     // Store the current file explorer content before hiding it
     const fileExplorer = document.getElementById('file-explorer');
+    document.getElementById('ext-container').style.display= 'none';
     fileExplorer.style.display = 'none';
     document.getElementById('search-container').style.display = 'flex';
 
@@ -2319,12 +2340,13 @@ document.getElementById('explorer-icon').addEventListener('click', function () {
     this.classList.add('active');
     document.getElementById('search-icon').classList.remove('active');
     document.getElementById('git-icon').classList.remove('active'); // Remove active class from git-icon
-
+    document.getElementById('extension-icon').classList.remove('active');
     // Hide Git container
     document.getElementById('git-container').style.display = 'none';
 
     // Show file explorer and hide search container
     document.getElementById('file-explorer').style.display = 'block';
+    document.getElementById('ext-container').style.display= 'none';
     document.getElementById('search-container').style.display = 'none';
 
     // Update explorer title back
@@ -2336,6 +2358,32 @@ document.getElementById('explorer-icon').addEventListener('click', function () {
         loadDirectory(currentDir);
     }
 });
+
+document.getElementById('extension-icon').addEventListener('click', function () {
+    this.classList.add('active');
+    loadExtensions();
+    document.getElementById('search-icon').classList.remove('active');
+    document.getElementById('git-icon').classList.remove('active'); // Remove active class from git-icon
+
+    document.getElementById('explorer-icon').classList.remove('active');
+    document.getElementById('git-container').style.display = 'none';
+
+    // Show file explorer and hide search container
+    document.getElementById('file-explorer').style.display = 'none';
+    document.getElementById('ext-container').style.display= 'block';
+    document.getElementById('search-container').style.display = 'none';
+
+    // Update explorer title back
+    document.querySelector('.explorer-title').textContent = 'EXTENSION STORE';
+
+    // Reload the current directory to refresh the file explorer
+    const currentDir = localStorage.getItem('lastDirectory');
+    if (currentDir) {
+        loadDirectory(currentDir);
+    }
+});
+
+
 
 document.getElementById('toggle-sidebar').addEventListener('click', function () {
     const sidebar = document.getElementById('sidebar');
@@ -2520,3 +2568,145 @@ function clearTerminal() {
 }
 // Event listener to clear the terminal when button is clicked
 document.getElementById('clear-console-button').addEventListener('click', clearTerminal);
+
+async function loadExtensions() {
+    const extContainer = document.getElementById('ext-container');
+    extContainer.innerHTML = ''; // Clear existing content
+    const installedExtensions = JSON.parse(localStorage.getItem('installedExtensions')) || [];
+
+    
+
+    // Now try to fetch the available extensions
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/meow18838/CablyCode/refs/heads/main/extensions.json');
+        if (!response.ok) {
+
+            // Display installed extensions if fetch fails
+            if (installedExtensions.length === 0) {
+                extContainer.innerHTML = '<div>No extensions installed.</div>';
+                return;
+            }
+
+            // Load installed extensions
+            installedExtensions.forEach(extension => {
+                const card = document.createElement('div');
+                card.className = 'extension-card';
+                card.innerHTML = `
+                    <h3 class="extension-title">${extension.name}</h3>
+                    <p class="extension-description">${extension.description}</p>
+                    <div style="display: flex; align-items: center;">
+                        <button class="install-button" data-name="${extension.name}">
+                            Uninstall
+                        </button>
+                        ${extension.warn ? `<span class="warning-icon" title="Uses Internet" style="position: absolute; top: 8px; right: 12px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFF00" width="40" height="40" viewBox="0 0 24 24">
+                                    <path d="M3.44722 18.1056L10.2111 4.57771C10.9482 3.10361 13.0518 3.10362 13.7889 4.57771L20.5528 18.1056C21.2177 19.4354 20.2507 21 18.7639 21H5.23607C3.7493 21 2.78231 19.4354 3.44722 18.1056Z" stroke="#FF0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 10L12 14" stroke="#FF0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="12" cy="17" r="1" fill="#FF0000"/>
+                                </svg>
+                            </span>` : ''}
+                    </div>
+                `;
+
+                // Add click event to the uninstall button
+                card.querySelector('.install-button').onclick = function() {
+                    uninstallExtension(extension);
+                };
+
+                extContainer.appendChild(card);
+            });
+        }
+
+        const extensions = await response.json();
+
+        extensions.forEach(extension => {
+            // Create card element
+            const card = document.createElement('div');
+            card.className = 'extension-card';
+            card.innerHTML = `
+                <h3 class="extension-title">${extension.name}</h3>
+                <p class="extension-description">${extension.description}</p>
+                <div style="display: flex; align-items: center;">
+                    <button class="install-button" data-name="${extension.name}">
+                        ${installedExtensions.some(ext => ext.name === extension.name) ? 'Uninstall' : 'Install'}
+                    </button>
+                    ${extension.warn ? `<span class="warning-icon" title="Uses Internet" style="position: absolute; top: 8px; right: 12px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#FFFF00" width="40" height="40" viewBox="0 0 24 24">
+                                <path d="M3.44722 18.1056L10.2111 4.57771C10.9482 3.10361 13.0518 3.10362 13.7889 4.57771L20.5528 18.1056C21.2177 19.4354 20.2507 21 18.7639 21H5.23607C3.7493 21 2.78231 19.4354 3.44722 18.1056Z" stroke="#FF0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 10L12 14" stroke="#FF0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="17" r="1" fill="#FF0000"/>
+                            </svg>
+                        </span>` : ''}
+                </div>
+            `;
+
+            // Add click event to the button
+            card.querySelector('.install-button').onclick = function() {
+                if (installedExtensions.some(ext => ext.name === extension.name)) {
+                    uninstallExtension(extension);
+                } else {
+                    installExtension(extension);
+                }
+            };
+
+            extContainer.appendChild(card);
+        });
+    } catch (err) {
+        console.warn('Failed to fetch extensions:', err);
+        // Only show installed extensions if fetching fails
+        if (installedExtensions.length === 0) {
+            extContainer.innerHTML = '<div>No extensions installed.</div>';
+        }
+    }
+}
+
+function installExtension(extension) {
+    const installedExtensions = JSON.parse(localStorage.getItem('installedExtensions')) || [];
+    
+    // Check if the extension is already installed
+    if (!installedExtensions.some(ext => ext.name === extension.name)) {
+        installedExtensions.push(extension);
+        localStorage.setItem('installedExtensions', JSON.stringify(installedExtensions));
+        alert(`${extension.name} has been installed!\nReload to see changes.`);
+    } else {
+        alert(`${extension.name} is already installed.`);
+    }
+
+    // Update UI to reflect the installed status
+    updateExtensionButton(extension.name);
+}
+
+function uninstallExtension(extension) {
+    const installedExtensions = JSON.parse(localStorage.getItem('installedExtensions')) || [];
+
+    // Filter out the extension to be uninstalled
+    const updatedExtensions = installedExtensions.filter(ext => ext.name !== extension.name);
+    localStorage.setItem('installedExtensions', JSON.stringify(updatedExtensions));
+
+    alert(`${extension.name} has been uninstalled!\nReload to see changes.`); // Optional feedback
+    updateExtensionButton(extension.name); // Update the button text
+    loadExtensions(); // Reload extensions to update the UI
+}
+
+function updateExtensionButton(name) {
+    try{
+    const button = document.querySelector(`.install-button[data-name="${name}"]`);
+    if (button) {
+        // Check if the extension is installed
+        const installedExtensions = JSON.parse(localStorage.getItem('installedExtensions')) || [];
+        const isInstalled = installedExtensions.some(ext => ext.name === name);
+        
+        // Update button text based on the installed status
+        button.textContent = isInstalled ? 'Uninstall' : 'Install'; 
+
+        // Add click event listener
+        button.onclick = function() {
+            if (isInstalled) {
+                uninstallExtension({ name }); // Uninstall action
+            } else {
+                installExtension({ name }); // Install action
+            }
+        }
+    }
+    }catch(err){alert(err)}
+}

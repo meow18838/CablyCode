@@ -20,6 +20,10 @@ input:focus {
     outline: none;
 }
 
+.extension-card {
+    position: relative;
+}
+
 .xterm {
     width: 100%;
     height: 100%;
@@ -142,6 +146,55 @@ input:focus {
     flex: 1;
     background-color: var(--sidebar-background-color);
     color: var(--text-color);
+}
+
+#ext-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between cards */
+}
+
+.extension-card {
+    background-color: var(--sidebar-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    width: 200px; /* Card width */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+
+.extension-card:hover {
+    background-color: var(--menu-hover);
+}
+
+.extension-icon {
+    width: 100%; /* Full width for the icon */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.extension-title {
+    font-size: 16px;
+    margin: 10px 0 5px;
+}
+
+.extension-description {
+    font-size: 12px;
+    color: var(--muted-color);
+    margin-bottom: 10px;
+}
+
+.install-button {
+    background-color: var(--active-tab-background);
+    color: var(--text-color);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.install-button:hover {
+    background-color: var(--button-hover);
 }
 
 .init-repo-button {

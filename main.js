@@ -1,12 +1,5 @@
-// Add this at the very top of main.js, before any other code
-if (require('electron-squirrel-startup')) {
-    app.quit();
-    return;
-}
-
-
-const { app, BrowserWindow, dialog } = require('electron')
-const path = require('path')
+const { app, BrowserWindow, dialog, shell } = require('electron');
+const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 
@@ -32,7 +25,6 @@ function createWindow(filePath = null) {
             contextIsolation: false,
             webSecurity: false,
             enableRemoteModule: true,
-            //devTools: false
         },
         icon: app.isPackaged
             ? path.join(process.resourcesPath, 'image.png')
@@ -40,9 +32,15 @@ function createWindow(filePath = null) {
         title: 'CablyCode',
         frame: false,
         backgroundColor: '#1e1e1e'
-    })
+    });
 
-    win.loadFile('index.html')
+    win.loadFile('index.html');
+
+    // Open external links in the default browser
+    win.webContents.on('new-window', (event, url) => {
+        event.preventDefault(); // Prevent the default behavior
+        shell.openExternal(url); // Open the URL in the system's default browser
+    });
 
     // Wait for the window to be ready before sending the file path
     if (filePath) {
