@@ -6,6 +6,7 @@
     <link href="themes.css" rel="stylesheet" type="text/css">
     <link href="style.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="node_modules/xterm/css/xterm.css">
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.0/dist/peerjs.min.js"></script>
 </head>
 
 <body>
@@ -103,6 +104,16 @@
                         <path d="M3.111,23H8.667a1,1,0,0,0,1-1V19.9a1.316,1.316,0,0,1,1.009-1.323,1.224,1.224,0,0,1,1.435,1.2V22a1,1,0,0,0,1,1h3.334a2.113,2.113,0,0,0,2.111-2.111V17.444h1.222a3.224,3.224,0,0,0,3.179-3.756A3.314,3.314,0,0,0,19.659,11h-1.1V7.555a2.113,2.113,0,0,0-2.111-2.111H13V4.34a3.313,3.313,0,0,0-2.688-3.3A3.222,3.222,0,0,0,6.556,4.222V5.444H3.111A2.113,2.113,0,0,0,1,7.555V12a1,1,0,0,0,1,1H4.1a1.317,1.317,0,0,1,1.323,1.01,1.223,1.223,0,0,1-1.2,1.434H2a1,1,0,0,0-1,1v4.445A2.113,2.113,0,0,0,3.111,23ZM3,17.444H4.222A3.224,3.224,0,0,0,7.4,13.688,3.313,3.313,0,0,0,4.1,11H3V7.555a.111.111,0,0,1,.111-.111H7.556a1,1,0,0,0,1-1V4.222A1.223,1.223,0,0,1,9.99,3.017,1.316,1.316,0,0,1,11,4.34v2.1a1,1,0,0,0,1,1h4.445a.111.111,0,0,1,.111.111V12a1,1,0,0,0,1,1h2.1a1.317,1.317,0,0,1,1.324,1.01,1.225,1.225,0,0,1-1.205,1.434H17.556a1,1,0,0,0-1,1v4.445a.111.111,0,0,1-.111.111H14.111V19.778A3.222,3.222,0,0,0,10.355,16.6a3.313,3.313,0,0,0-2.688,3.3V21H3.111A.111.111,0,0,1,3,20.889Z"/>
                     </svg>
                 </div>
+                <div class="side-bar-item" id="collab-icon" title="Collaboration">
+                    <svg class="side-bar-icon" viewBox="0 0 32 32" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <style>
+                                .cls-1{fill:currentColor;}
+                            </style>
+                        </defs>
+                        <path class="cls-1" d="M26.32,11.59,26,11.5a1.35,1.35,0,0,1-.43-.16,5.4,5.4,0,0,0,1.21-4V6.77a3.77,3.77,0,1,0-7.54,0v.52a5.4,5.4,0,0,0,1.21,4.05l-.11.06a5.09,5.09,0,0,0-8.64,0l-.11-.06a5.4,5.4,0,0,0,1.21-4V6.77A3.83,3.83,0,0,0,9,3,3.83,3.83,0,0,0,5.23,6.77v.52a5.4,5.4,0,0,0,1.21,4.05A1.35,1.35,0,0,1,6,11.5l-.32.09C3.85,12.2,2,13.91,2,16a1,1,0,0,0,2,0c0-1.09,1.18-2.13,2.32-2.51a1.05,1.05,0,0,1,.21-.06,2.75,2.75,0,0,0,1.54-.93,2.78,2.78,0,0,0,1.86,0,2.25,2.25,0,0,0,1,.75,5.49,5.49,0,0,0-.09.9c0,.27,0,.53,0,.79,0,1.88-.05,3.83,1.88,6-.09.55-.4.64-1.09.83l-.45.13C8.61,22.72,6,25.1,6,28a1,1,0,0,0,2,0c0-1.86,1.94-3.62,3.82-4.24a2.75,2.75,0,0,1,.34-.1,3.33,3.33,0,0,0,2.21-1.5,4.19,4.19,0,0,0,3.26,0,3.33,3.33,0,0,0,2.21,1.5,2.75,2.75,0,0,1,.34.1C22.06,24.38,24,26.14,24,28a1,1,0,0,0,2,0c0-2.9-2.61-5.28-5.18-6.14l-.45-.13c-.69-.19-1-.28-1.09-.83,1.93-2.13,1.92-4.08,1.88-6,0-.26,0-.52,0-.79a5.49,5.49,0,0,0-.09-.9,2.25,2.25,0,0,0,1-.75,2.78,2.78,0,0,0,1.86,0,2.75,2.75,0,0,0,1.54.93,1.05,1.05,0,0,1,.21.06C26.82,13.87,28,14.91,28,16a1,1,0,0,0,2,0C30,13.91,28.15,12.2,26.32,11.59ZM8.21,10.33a3.35,3.35,0,0,1-1-3c0-.19,0-.37,0-.56A1.82,1.82,0,0,1,9,5a1.82,1.82,0,0,1,1.77,1.77c0,.19,0,.37,0,.56a3.35,3.35,0,0,1-1,3h0A1.15,1.15,0,0,1,8.21,10.33Zm6.25,9.52c-1.68-1.68-1.66-3-1.62-4.87,0-.27,0-.55,0-.83a3.15,3.15,0,1,1,6.3,0c0,.28,0,.56,0,.83,0,1.85.06,3.19-1.62,4.87A2.24,2.24,0,0,1,14.46,19.85Zm7.75-9.52a3.35,3.35,0,0,1-1-3c0-.19,0-.37,0-.56a1.77,1.77,0,1,1,3.54,0c0,.19,0,.37,0,.56a3.35,3.35,0,0,1-1,3h0A1.15,1.15,0,0,1,22.21,10.33Z"/>
+                    </svg>
+                </div>
             </div>
             <div id="sidebar">
                 <div class="explorer-title">EXPLORER</div>
@@ -123,7 +134,12 @@
                     <button id="commit-button">Commit</button>
                 </div>
                 <div id="ext-container">
-                    te
+                </div>
+                <div id="collab-container">
+                    <button id="start-code-server" class="collab-button">Start Code Server</button>
+                    <button id="join-code-server" class="collab-button">Join Code Server</button>
+                    <div id="collab-code"></div>
+                    <button id="stop-code-server" style="display: none;" class="collab-button">Stop Code Server</button>
                 </div>
             </div>
             <div id="editor-container">
@@ -231,6 +247,19 @@
             </div>
         </div>
     </div>
+    <div class="modal-overlay" id="join-code-server-modal">
+        <div class="modal">
+            <div class="modal-header">Join Code Server</div>
+            <div class="modal-content">
+                <label for="server-code-input">Enter Server Code:</label>
+                <input type="text" id="server-code-input" class="modal-input" placeholder="Enter server code" />
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel" id="cancel-join">Cancel</button>
+                <button class="modal-button" id="join-server">Join</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Then start the scripts -->
     <script>
@@ -244,6 +273,7 @@
         const Git = require('simple-git');
         const { exec, spawn } = require('child_process');
         const { Terminal } = require('xterm');
+        const { Peer } = require('peerjs');
         // Store these in global scope for use later
         window.electronFS = fs;
         window.electronPath = path;

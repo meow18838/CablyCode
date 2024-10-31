@@ -16,6 +16,27 @@ body {
     flex: 1;
 }
 
+.collab-button {
+    width: calc(100% - 10px);
+    padding: 10px 20px; /* Padding for the button */
+    margin: 5px; /* Margin for spacing */
+    background-color: var(--menu-hover); /* Background color */
+    color: var(--text-color); /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 4px; /* Round corners */
+    cursor: pointer; /* Pointer on hover */
+    font-size: 14px; /* Font size */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.collab-button:hover {
+    background-color: var(--button-hover); /* Change background on hover */
+}
+
+.collab-button:focus {
+    outline: none; /* Remove focus outline */
+}
+
 input:focus {
     outline: none;
 }
@@ -40,6 +61,11 @@ input:focus {
     z-index: 99;
     padding: 10px;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+}
+
+#collab-container {
+    display: none;
+    flex: 1;
 }
 
 #console-output {
@@ -685,6 +711,7 @@ input:focus {
 
 .modal-button.cancel {
     background-color: transparent;
+    color: var(--text-color);
     border: 1px solid var(--border-color);
 }
 
