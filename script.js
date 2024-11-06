@@ -602,7 +602,7 @@ require(['vs/editor/editor.main'], function () {
 
     // When creating a tab, mark it as invalid if needed
     function createTab(filePath, content, language, isImage = false, isInvalid = false) {
-        if (!isImage){
+        try{if (!isImage){
             rpc.setActivity({
                 details: "Working on "+filePath.split("/")[filePath.split("/").length - 1] +" 🐱",
                 startTimestamp: startDate,
@@ -617,7 +617,7 @@ require(['vs/editor/editor.main'], function () {
                 largeImageKey: 'cablycode-icon',
                 instance: false,
             });
-        }
+        }}catch(err){}
         const tab = {
             id: Date.now(),
             path: filePath,
@@ -637,7 +637,7 @@ require(['vs/editor/editor.main'], function () {
     }
     window.createTab = createTab;
     function activateTab(tab) {
-        if (!tab.isImage){
+        try{if (!tab.isImage){
             rpc.setActivity({
                 details: 'Working on '+tab.path.split("/")[tab.path.split("/").length - 1] +" 🐱",
                 startTimestamp: startDate,
@@ -652,7 +652,7 @@ require(['vs/editor/editor.main'], function () {
                 largeImageKey: 'cablycode-icon',
                 instance: false,
             });
-        }
+        }}catch(err){}
         activeTab = tab;
         if (tab.isImage) {
             document.getElementById('editor').style.display = 'none';
