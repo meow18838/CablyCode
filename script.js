@@ -602,6 +602,22 @@ require(['vs/editor/editor.main'], function () {
 
     // When creating a tab, mark it as invalid if needed
     function createTab(filePath, content, language, isImage = false, isInvalid = false) {
+        if (!isImage){
+            rpc.setActivity({
+                details: "Working on "+filePath.split("/")[filePath.split("/").length - 1] +" 🐱",
+                startTimestamp: startDate,
+                largeImageKey: 'cablycode-icon',
+                instance: false,
+            });
+        }
+        else {
+            rpc.setActivity({
+                details: "Viewing "+filePath.split("/")[filePath.split("/").length - 1] +" 🐱",
+                startTimestamp: startDate,
+                largeImageKey: 'cablycode-icon',
+                instance: false,
+            });
+        }
         const tab = {
             id: Date.now(),
             path: filePath,
@@ -620,8 +636,23 @@ require(['vs/editor/editor.main'], function () {
         updateChatFileList();
     }
     window.createTab = createTab;
-
     function activateTab(tab) {
+        if (!tab.isImage){
+            rpc.setActivity({
+                details: 'Working on '+tab.path.split("/")[tab.path.split("/").length - 1] +" 🐱",
+                startTimestamp: startDate,
+                largeImageKey: 'cablycode-icon',
+                instance: false,
+            });
+        }
+        else {
+            rpc.setActivity({
+                details: 'Viewing '+tab.path.split("/")[tab.path.split("/").length - 1] +" 🐱",
+                startTimestamp: startDate,
+                largeImageKey: 'cablycode-icon',
+                instance: false,
+            });
+        }
         activeTab = tab;
         if (tab.isImage) {
             document.getElementById('editor').style.display = 'none';
@@ -2313,6 +2344,22 @@ document.getElementById('commit-details-modal').addEventListener('click', (e) =>
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 // Update the search icon click handler
 document.getElementById('search-icon').addEventListener('click', function () {
@@ -2382,6 +2429,7 @@ document.getElementById('extension-icon').addEventListener('click', function () 
         loadDirectory(currentDir);
     }
 });
+
 
 
 

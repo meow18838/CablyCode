@@ -3,7 +3,8 @@ const path = require('path');
 const Store = require('electron-store');
 const store = new Store();
 
-// Store the file path if app is launched with a file
+
+//Store the file path if app is launched with a file
 let fileToOpen = null;
 if (process.argv.length >= 2) {
     const arg = process.argv[1];
